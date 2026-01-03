@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>London Tipping Copy Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- charith neranga -->
+<div id="passwordScreen">
+  <div class="password-box">
+    <h2>Authorized Access Only🔒</h2>
+    <input type="password" id="passwordInput" placeholder="Enter password" />
+    <button onclick="checkPassword()"> <b>Unlock </b> </button>
+  </div>
+</div>
+
+<div id="protectedContent">
+  <div class="overlay">
+    <div class="container">
+      <div class="header">
+        <h2><span>London</span> <span>Tipping Copy Editor</span></h2>
+      </div>
+
+      <textarea id="inputText" placeholder="Paste the full Article including SELECTIONS..."></textarea>
+
+      <div class="controls">
+        <button onclick="processText()">🛠 <b>Process</b> </button>
+        <button onclick="clearText()">🗑 <b>Clear</b> </button>
+        <div class="toggle">
+          <input type="checkbox" id="highlightAll" />
+          <label for="highlightAll">Highlight all matches</label>
+        </div>
+      </div>
+
+      <div id="output"></div>
+    </div>
+    
+<!-- charith neranga -->
+    <footer>
+      © 2026 | <strong>LS Publication Dept. |</strong>Developed by Charith Neranga
+    </footer>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
+
+
+
