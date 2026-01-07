@@ -16,14 +16,14 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      /* UPDATED BACKGROUND IMAGE */
       background: url('https://www.britishracecourses.org/wp-content/uploads/NINTCHDBPICT000428245146-1-scaled.jpg') no-repeat center center fixed;
       background-size: cover;
       color: orange;
       min-height: 100vh;
+      /* Prevent easy UI text selection */
+      user-select: none; 
     }
 
-    /* MODERN LOGIN SCREEN */
     #passwordScreen {
       position: fixed;
       top: 0;
@@ -115,7 +115,6 @@
       transform: translateY(-2px);
     }
 
-    /* MAIN CONTENT */
     #protectedContent {
       display: none;
     }
@@ -191,6 +190,7 @@
       box-sizing: border-box;
       outline: none;
       transition: border 0.3s;
+      user-select: text; 
     }
 
     textarea:focus {
@@ -248,30 +248,13 @@
       color: #000;
       line-height: 1.6;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+      user-select: text;
     }
 
-    strong.green-highlight {
-      background-color: green;
-      color: white;
-      padding: 2px 5px;
-      border-radius: 3px;
-    }
+    strong.green-highlight { background-color: green; color: white; padding: 2px 5px; border-radius: 3px; }
+    strong.red-highlight { background-color: red; color: white; padding: 2px 5px; border-radius: 3px; }
+    strong.yellow-highlight { background-color: #fff700; color: black; padding: 2px 5px; border-radius: 3px; }
 
-    strong.red-highlight {
-      background-color: red;
-      color: white;
-      padding: 2px 5px;
-      border-radius: 3px;
-    }
-
-    strong.yellow-highlight {
-      background-color: #fff700;
-      color: black;
-      padding: 2px 5px;
-      border-radius: 3px;
-    }
-
-    /* FOOTER STYLES */
     footer {
       text-align: center;
       margin-top: 45px;
@@ -280,23 +263,9 @@
       padding-bottom: 30px;
     }
 
-    .footer-nav {
-      margin-bottom: 15px;
-    }
-
-    .footer-nav span {
-      margin: 0 12px;
-      cursor: pointer;
-      color: var(--primary-green);
-      font-weight: bold;
-      text-transform: uppercase;
-      transition: 0.3s;
-    }
-
-    .footer-nav span:hover {
-      color: #333;
-      text-decoration: underline;
-    }
+    .footer-nav { margin-bottom: 15px; }
+    .footer-nav span { margin: 0 12px; cursor: pointer; color: var(--primary-green); font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+    .footer-nav span:hover { color: #333; text-decoration: underline; }
 
     .system-badge {
       display: inline-block;
@@ -311,7 +280,6 @@
       border: 1px solid var(--vvip-gold);
     }
 
-    /* MODAL STYLES */
     .custom-modal {
       display: none;
       position: fixed;
@@ -336,16 +304,8 @@
       box-shadow: 0 25px 50px rgba(0,0,0,0.3);
     }
 
-    .close-modal {
-      position: absolute;
-      right: 20px;
-      top: 15px;
-      font-size: 24px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+    .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; font-weight: bold; }
 
-    /* BLACK & WHITE PRINTER OPTIMIZATION */
     @media print {
       body, .overlay { background: none !important; background-color: white !important; color: black !important; }
       #passwordScreen, .controls, footer, .top-actions, textarea, .header { display: none !important; }
@@ -359,23 +319,16 @@
         font-weight: bold !important;
       }
     }
-
-    @media (max-width: 600px) {
-      .controls { flex-direction: column; align-items: stretch; gap: 15px; }
-      .header h2 { font-size: 22px; }
-      .password-box { padding: 30px 20px; }
-      .top-actions { margin-bottom: 10px; justify-content: center; }
-    }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <div id="passwordScreen">
   <div class="password-box">
     <img src="https://leisuresportsholdings.com/images/logolg.png" alt="Logo" class="login-logo">
     <div class="animation-container"></div>
     <h2>Authorized Access Only 🔒</h2>
-    <input type="password" id="passwordInput" placeholder="Enter password" />
+    <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="off" />
     <button onclick="checkPassword()">Unlock System</button>
   </div>
 </div>
@@ -386,13 +339,10 @@
       <div class="top-actions">
         <button class="btn-logout" onclick="logout()">Logout 🚪</button>
       </div>
-      
       <div class="header">
         <h2><span>London</span> <span>Tipping Copy Editor</span></h2>
       </div>
-
       <textarea id="inputText" placeholder="Paste the full Article including SELECTIONS..."></textarea>
-
       <div class="controls">
         <div class="btn-group">
             <button onclick="processText()">🛠 <b>Process</b> </button>
@@ -404,10 +354,8 @@
           <label for="highlightAll">Highlight all matches</label>
         </div>
       </div>
-
       <div id="output"></div>
     </div>
-    
     <footer>
       <div class="system-badge">VVIP EMPLOYEE TRACKER v2.0</div>
       <div class="footer-nav">
@@ -429,21 +377,31 @@
 </div>
 
 <script>
-document.getElementById("passwordInput").addEventListener("keydown", function (event) {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    checkPassword();
-  }
+/**
+ * STEP 2: PROTECTION SCRIPTS
+ */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.onkeydown = function(e) {
+  if (e.keyCode == 123) return false; // F12
+  if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Inspect
+  if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // View Source
+};
+
+document.getElementById("passwordInput").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") { e.preventDefault(); checkPassword(); }
 });
 
+/**
+ * STEP 1: OBFUSCATION
+ */
 function checkPassword() {
-  const correctPassword = "1234";
-  const input = document.getElementById("passwordInput").value.trim();
-  if (input === correctPassword) {
+  const _0x1a = "1234"; 
+  const _0x1b = document.getElementById("passwordInput").value.trim();
+  if (_0x1b === _0x1a) {
     document.getElementById("passwordScreen").style.display = "none";
     document.getElementById("protectedContent").style.display = "block";
   } else {
-    alert("❌ Incorrect password. Try again.");
+    alert("❌ Incorrect password.");
   }
 }
 
@@ -453,96 +411,54 @@ function logout() {
   document.getElementById("passwordScreen").style.display = "flex";
 }
 
-function openModal(type) {
-  const modal = document.getElementById("infoModal");
-  const title = document.getElementById("modalTitle");
-  const body = document.getElementById("modalBody");
-  
-  if (type === 'about') {
-    title.innerText = "About VVIP Tracker";
-    body.innerHTML = "The London Tipping Copy Editor is an exclusive internal tool developed for LS Publication Dept. employees. It provides high-speed text processing and horse racing analytics visualization, ensuring precision in VVIP copy management.";
-  } else if (type === 'terms') {
-    title.innerText = "Terms of Service";
-    body.innerHTML = "1. Access is strictly for authorized personnel only.<br>2. All data processed is property of LS Publication Dept.<br>3. Unauthorized distribution of processed output is prohibited.<br>4. System logs are maintained for security audits.";
-  } else if (type === 'privacy') {
-    title.innerText = "Privacy Policy";
-    body.innerHTML = "This system processes data locally within your browser session. We do not store your input text or processed output on external servers. Secure password protocols are in place to prevent unauthorized terminal access.";
-  }
-  
-  modal.style.display = "block";
-}
-
-function closeModal() {
-  document.getElementById("infoModal").style.display = "none";
-}
-
-window.onclick = function(event) {
-  const modal = document.getElementById("infoModal");
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
-
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 function processText() {
-  const input = document.getElementById('inputText').value;
-  const outputDiv = document.getElementById('output');
-  const highlightAll = document.getElementById('highlightAll').checked;
+  const _0xf1 = document.getElementById('inputText').value;
+  const _0xf2 = document.getElementById('output');
+  const _0xf3 = document.getElementById('highlightAll').checked;
 
-  const selectionsMatch = input.match(/SELECTIONS\s*([\s\S]*)/i);
-  if (!selectionsMatch) {
-    outputDiv.innerHTML = "<span style='color:red;'>❌ SELECTIONS section not found.</span>";
-    return;
-  }
+  const _0xf4 = _0xf1.match(/SELECTIONS\s*([\s\S]*)/i);
+  if (!_0xf4) { _0xf2.innerHTML = "<span style='color:red;'>❌ Section not found.</span>"; return; }
 
-  const selectionText = selectionsMatch[1];
-  const horseRegex = /\d{1,2}\.\d{2}\s+([^(,\n\r]+)(\s*\(NAP\))?/g;
+  const _0xf5 = _0xf4[1];
+  const _0xf6 = /\d{1,2}\.\d{2}\s+([^(,\n\r]+)(\s*\(NAP\))?/g;
 
-  let horseEntries = [];
-  let match;
-  while ((match = horseRegex.exec(selectionText)) !== null) {
-    let horseName = match[1].trim();
-    let hasNAP = !!match[2];
-    horseEntries.push({ horseName, hasNAP });
+  let _0xf7 = [];
+  let _0xf8;
+  while ((_0xf8 = _0xf6.exec(_0xf5)) !== null) {
+    _0xf7.push({ horseName: _0xf8[1].trim(), hasNAP: !!_0xf8[2] });
   }
   
-  if (horseEntries.length === 0) {
-    outputDiv.innerHTML = "<span style='color:red;'>❌ No horse names found in SELECTIONS.</span>";
-    return;
-  }
+  if (_0xf7.length === 0) { _0xf2.innerHTML = "<span style='color:red;'>❌ No matches.</span>"; return; }
 
-  horseEntries.sort((a, b) => b.horseName.length - a.horseName.length);
-  let outputText = input;
+  _0xf7.sort((a, b) => b.horseName.length - a.horseName.length);
+  let _0xf9 = _0xf1;
 
-  horseEntries.forEach(entry => {
-    const escapedName = escapeRegex(entry.horseName);
-    const regex = new RegExp(`(?<!<strong[^>]*?>)(\\b${escapedName}\\b)(?=[\\s.,;!?'")]|$)`, highlightAll ? 'gi' : 'i');
-
-    if (entry.hasNAP) {
-      outputText = outputText.replace(regex, match => `<strong class="red-highlight">${match}</strong>`);
-    } else {
-      outputText = outputText.replace(regex, match => `<strong class="green-highlight">${match}</strong>`);
-    }
+  _0xf7.forEach(e => {
+    const r = new RegExp(`(?<!<strong[^>]*?>)(\\b${e.horseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b)`, _0xf3 ? 'gi' : 'i');
+    const c = e.hasNAP ? "red-highlight" : "green-highlight";
+    _0xf9 = _0xf9.replace(r, m => `<strong class="${c}">${m}</strong>`);
   });
 
-  const specialWords = ['today', 'yesterday', 'saturday', 'sunday','friday', 'tomorrow', 'monday' , 'on a monday'];
-  specialWords.forEach(word => {
-    const escapedWord = escapeRegex(word);
-    const regex = new RegExp(`(?<!<strong[^>]*?>)(\\b${escapedWord}\\b)`, 'gi');
-    outputText = outputText.replace(regex, match => `<strong class="yellow-highlight">${match}</strong>`);
+  ['today', 'yesterday', 'saturday', 'sunday','friday', 'tomorrow', 'monday'].forEach(w => {
+    const r = new RegExp(`(?<!<strong[^>]*?>)(\\b${w}\\b)`, 'gi');
+    _0xf9 = _0xf9.replace(r, m => `<strong class="yellow-highlight">${m}</strong>`);
   });
 
-  outputDiv.innerHTML = outputText;
+  _0xf2.innerHTML = _0xf9;
 }
 
-function clearText() {
-  document.getElementById('inputText').value = '';
-  document.getElementById('output').innerHTML = '';
-  document.getElementById('highlightAll').checked = false;
+function openModal(t) {
+  const m = document.getElementById("infoModal");
+  const b = document.getElementById("modalBody");
+  const h = document.getElementById("modalTitle");
+  if(t==='about'){ h.innerText="About"; b.innerText="Internal tool for LS Publication Dept."; }
+  else if(t==='terms'){ h.innerText="Terms"; b.innerText="Authorized personnel only."; }
+  else { h.innerText="Privacy"; b.innerText="Processes data locally."; }
+  m.style.display = "block";
 }
+
+function closeModal() { document.getElementById("infoModal").style.display = "none"; }
+function clearText() { document.getElementById('inputText').value=''; document.getElementById('output').innerHTML=''; }
 </script>
 
 </body>
