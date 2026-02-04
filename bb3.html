@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>London Tipping Copy Editor</title>
+  <style>
+    /* MODERN UI ENHANCEMENTS */
+    :root {
+      --primary-green: #008000;
+      --accent-yellow: #fff700;
+      --glass-bg: rgba(255, 255, 255, 0.95);
+      --vvip-gold: #d4af37;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: url('https://www.britishracecourses.org/wp-content/uploads/NINTCHDBPICT000428245146-1-scaled.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: orange;
+      min-height: 100vh;
+      /* Prevent easy UI text selection */
+      user-select: none; 
+    }
+
+    #passwordScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 40, 0, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .password-box {
+      background: var(--glass-bg);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .login-logo {
+      width: 220px;
+      margin-bottom: 25px;
+      filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
+    }
+
+    .animation-container {
+      width: 100px;
+      height: 100px;
+      background: url('https://jisforjustify.com/wp-content/uploads/2019/01/J-is-for-Justify-animation.gif') no-repeat center;
+      background-size: contain;
+      margin-bottom: 15px;
+    }
+
+    .password-box h2 {
+      margin: 0 0 25px 0;
+      font-size: 20px;
+      color: #333;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .password-box input {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      outline: none;
+      text-align: center;
+      color: black;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .password-box input:focus {
+      border-color: var(--primary-green);
+      box-shadow: 0 0 10px rgba(0, 128, 0, 0.2);
+    }
+
+    .password-box button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      background: var(--primary-green);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-transform: uppercase;
+    }
+
+    .password-box button:hover {
+      filter: brightness(1.2);
+      transform: translateY(-2px);
+    }
+
+    #protectedContent {
+      display: none;
+    }
+
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.65);
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background-color: white;
+      padding: 35px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: -40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .btn-logout {
+      background-color: #e74c3c;
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+
+    .header {
+      background-image: url('https://cdn.dribbble.com/userupload/24438965/file/original-5e344de07b6ecd30e55f00dc85d6ef5a.gif');
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: 120px auto;
+      padding-top: 130px;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header h2 {
+      font-size: 28px;
+      background-color: var(--primary-green);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 12px;
+      display: inline-block;
+      margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .header h2 span:first-child {
+      color: var(--accent-yellow);
+      margin-right: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      padding: 18px;
+      font-size: 15px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      resize: vertical;
+      background: #fdfdfd;
+      color: #222;
+      box-sizing: border-box;
+      outline: none;
+      transition: border 0.3s;
+      user-select: text; 
+      margin-bottom: 10px;
+    }
+
+    /* Style for the title input */
+    #inputTitle {
+      height: 50px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    textarea:focus {
+      border-color: var(--primary-green);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background-color: var(--primary-green);
+      color: white;
+      transition: 0.3s ease;
+    }
+
+    .btn-print {
+      background-color: #2c3e50;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: #444;
+      font-weight: 500;
+    }
+
+    #output {
+      white-space: pre-wrap;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #eee;
+      margin-top: 30px;
+      font-size: 16px;
+      min-height: 150px;
+      color: #000;
+      line-height: 1.6;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+      user-select: text;
+    }
+
+    strong.green-highlight { background-color: green; color: white; padding: 2px 5px; border-radius: 3px; }
+    strong.red-highlight { background-color: red; color: white; padding: 2px 5px; border-radius: 3px; }
+    strong.yellow-highlight { background-color: #fff700; color: black; padding: 2px 5px; border-radius: 3px; }
+
+    footer {
+      text-align: center;
+      margin-top: 45px;
+      color: #444;
+      font-size: 13px;
+      padding-bottom: 30px;
+    }
+
+    .footer-nav { margin-bottom: 15px; }
+    .footer-nav span { margin: 0 12px; cursor: pointer; color: var(--primary-green); font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+    .footer-nav span:hover { color: #333; text-decoration: underline; }
+
+    .system-badge {
+      display: inline-block;
+      background: #333;
+      color: var(--vvip-gold);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      border: 1px solid var(--vvip-gold);
+    }
+
+    .custom-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 20px;
+      width: 80%;
+      max-width: 500px;
+      color: #333;
+      position: relative;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    }
+
+    .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; font-weight: bold; }
+
+    @media print {
+      body, .overlay { background: none !important; background-color: white !important; color: black !important; }
+      #passwordScreen, .controls, footer, .top-actions, textarea, .header { display: none !important; }
+      .container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+      #output { border: none !important; padding: 0 !important; margin: 0 !important; font-size: 12pt !important; color: black !important; }
+      strong.green-highlight, strong.red-highlight, strong.yellow-highlight {
+        background: none !important;
+        color: black !important;
+        border: 1px solid black !important;
+        padding: 1px 3px !important;
+        font-weight: bold !important;
+      }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+
+<div id="passwordScreen">
+  <div class="password-box">
+    <img src="https://leisuresportsholdings.com/images/logolg.png" alt="Logo" class="login-logo">
+    <div class="animation-container"></div>
+    <h2>Authorized Access Only 🔒</h2>
+    <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="off" />
+    <button onclick="checkPassword()">Unlock System</button>
+  </div>
+</div>
+
+<div id="protectedContent">
+  <div class="overlay">
+    <div class="container">
+      <div class="top-actions">
+        <button class="btn-logout" onclick="logout()">Logout 🚪</button>
+      </div>
+      <div class="header">
+        <h2><span>London</span> <span>Tipping Copy Editor</span></h2>
+      </div>
+      <textarea id="inputTitle" placeholder="Paste TITLE here..."></textarea>
+      <textarea id="inputText" placeholder="Paste the full Article including SELECTIONS..."></textarea>
+      
+      <div class="controls">
+        <div class="btn-group">
+            <button onclick="processText()">🛠 <b>Process</b> </button>
+            <button class="btn-print" onclick="window.print()">🖨 <b>Print</b> </button>
+            <button onclick="clearText()" style="background-color: #555;">🗑 <b>Clear</b> </button>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="highlightAll" />
+          <label for="highlightAll">Highlight all matches</label>
+        </div>
+      </div>
+      <div id="output"></div>
+    </div>
+    <footer>
+      <div class="system-badge">VVIP EMPLOYEE TRACKER v2.0</div>
+      <div class="footer-nav">
+        <span onclick="openModal('about')">About Us</span>
+        <span onclick="openModal('terms')">Terms of Service</span>
+        <span onclick="openModal('privacy')">Privacy Policy</span>
+      </div>
+      © 2026 | <strong>LS Publication Dept. |</strong> Developed by Charith Neranga
+    </footer>
+  </div>
+</div>
+
+<div id="infoModal" class="custom-modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <h3 id="modalTitle" style="color: var(--primary-green); border-bottom: 2px solid #eee; padding-bottom: 10px;"></h3>
+    <div id="modalBody" style="line-height: 1.6; margin-top: 15px; font-size: 14px;"></div>
+  </div>
+</div>
+
+<script>
+/**
+ * STEP 2: PROTECTION SCRIPTS
+ */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.onkeydown = function(e) {
+  if (e.keyCode == 123) return false; // F12
+  if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Inspect
+  if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // View Source
+};
+
+document.getElementById("passwordInput").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") { e.preventDefault(); checkPassword(); }
+});
+
+/**
+ * STEP 1: OBFUSCATION
+ */
+function checkPassword() {
+  const _0x1a = "1234"; 
+  const _0x1b = document.getElementById("passwordInput").value.trim();
+  if (_0x1b === _0x1a) {
+    document.getElementById("passwordScreen").style.display = "none";
+    document.getElementById("protectedContent").style.display = "block";
+  } else {
+    alert("❌ Incorrect password.");
+  }
+}
+
+function logout() {
+  document.getElementById("passwordInput").value = "";
+  document.getElementById("protectedContent").style.display = "none";
+  document.getElementById("passwordScreen").style.display = "flex";
+}
+
+function processText() {
+  const _titleVal = document.getElementById('inputTitle').value;
+  const _0xf1 = document.getElementById('inputText').value;
+  const _0xf2 = document.getElementById('output');
+  const _0xf3 = document.getElementById('highlightAll').checked;
+
+  const _0xf4 = _0xf1.match(/SELECTIONS\s*([\s\S]*)/i);
+  if (!_0xf4) { _0xf2.innerHTML = "<span style='color:red;'>❌ Section not found.</span>"; return; }
+
+  const _0xf5 = _0xf4[1];
+  const _0xf6 = /\d{1,2}\.\d{2}\s+([^(,\n\r]+)(\s*\(NAP\))?/g;
+
+  let _0xf7 = [];
+  let _0xf8;
+  while ((_0xf8 = _0xf6.exec(_0xf5)) !== null) {
+    _0xf7.push({ horseName: _0xf8[1].trim(), hasNAP: !!_0xf8[2] });
+  }
+  
+  if (_0xf7.length === 0) { _0xf2.innerHTML = "<span style='color:red;'>❌ No matches.</span>"; return; }
+
+  _0xf7.sort((a, b) => b.horseName.length - a.horseName.length);
+  let _0xf9 = _0xf1;
+
+  _0xf7.forEach(e => {
+    const r = new RegExp(`(?<!<strong[^>]*?>)(\\b${e.horseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b)`, _0xf3 ? 'gi' : 'i');
+    const c = e.hasNAP ? "red-highlight" : "green-highlight";
+    _0xf9 = _0xf9.replace(r, m => `<strong class="${c}">${m}</strong>`);
+  });
+
+  ['today', 'yesterday', 'saturday', 'sunday','friday', 'tomorrow', 'monday'].forEach(w => {
+    const r = new RegExp(`(?<!<strong[^>]*?>)(\\b${w}\\b)`, 'gi');
+    _0xf9 = _0xf9.replace(r, m => `<strong class="yellow-highlight">${m}</strong>`);
+  });
+
+  // Combine Title with Processed Text
+  let combinedOutput = "";
+  if(_titleVal.trim() !== "") {
+    combinedOutput = `<h2 style="color:black; margin-top:0; border-bottom: 2px solid #ddd; padding-bottom:10px;">${_titleVal}</h2>`;
+  }
+  _0xf2.innerHTML = combinedOutput + _0xf9;
+}
+
+function openModal(t) {
+  const m = document.getElementById("infoModal");
+  const b = document.getElementById("modalBody");
+  const h = document.getElementById("modalTitle");
+  if(t==='about'){ h.innerText="About"; b.innerText="Internal tool for LS Publication Dept."; }
+  else if(t==='terms'){ h.innerText="Terms"; b.innerText="Authorized personnel only."; }
+  else { h.innerText="Privacy"; b.innerText="Processes data locally."; }
+  m.style.display = "block";
+}
+
+function closeModal() { document.getElementById("infoModal").style.display = "none"; }
+function clearText() { 
+    document.getElementById('inputTitle').value=''; 
+    document.getElementById('inputText').value=''; 
+    document.getElementById('output').innerHTML=''; 
+}
+</script>
+
+</body>
+</html>
