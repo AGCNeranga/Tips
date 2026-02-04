@@ -20,7 +20,6 @@
       background-size: cover;
       color: orange;
       min-height: 100vh;
-      /* Prevent easy UI text selection */
       user-select: none; 
     }
 
@@ -179,7 +178,7 @@
 
     textarea {
       width: 100%;
-      height: 250px;
+      height: 200px;
       padding: 18px;
       font-size: 15px;
       border-radius: 12px;
@@ -191,6 +190,13 @@
       outline: none;
       transition: border 0.3s;
       user-select: text; 
+      margin-bottom: 10px;
+    }
+
+    #inputTitle {
+      height: 50px;
+      font-weight: bold;
+      font-size: 18px;
     }
 
     textarea:focus {
@@ -223,9 +229,8 @@
       transition: 0.3s ease;
     }
 
-    .btn-print {
-      background-color: #2c3e50;
-    }
+    .btn-print { background-color: #2c3e50; }
+    .btn-special { background-color: #d35400; }
 
     .toggle {
       display: flex;
@@ -236,7 +241,7 @@
       font-weight: 500;
     }
 
-    #output {
+    #output, #meetingCheckOutput {
       white-space: pre-wrap;
       background: #fff;
       padding: 25px;
@@ -244,16 +249,32 @@
       border: 1px solid #eee;
       margin-top: 30px;
       font-size: 16px;
-      min-height: 150px;
+      min-height: 20px;
       color: #000;
       line-height: 1.6;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
       user-select: text;
     }
 
+    #meetingCheckOutput { border: 2px solid #d35400; display: none; margin-top: 20px; position: relative; }
+    .close-output { position: absolute; right: 15px; top: 10px; cursor: pointer; color: #e74c3c; font-weight: bold; font-size: 14px; border: 1px solid #e74c3c; padding: 2px 8px; border-radius: 5px; background: #fff; }
+
     strong.green-highlight { background-color: green; color: white; padding: 2px 5px; border-radius: 3px; }
     strong.red-highlight { background-color: red; color: white; padding: 2px 5px; border-radius: 3px; }
     strong.yellow-highlight { background-color: #fff700; color: black; padding: 2px 5px; border-radius: 3px; }
+    
+    strong.match-highlight { background-color: #ffcccc; color: #b00000; padding: 2px 5px; border-radius: 3px; border: 1px solid red; }
+
+    /* CHECKBOXES FOR PRINT */
+    .print-only-checkbox {
+      display: none; /* Hidden on screen */
+      width: 14px;
+      height: 14px;
+      border: 1px solid black;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    .print-circle { border-radius: 50%; }
 
     footer {
       text-align: center;
@@ -306,18 +327,43 @@
 
     .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; font-weight: bold; }
 
+    /* PRINT STYLES */
     @media print {
       body, .overlay { background: none !important; background-color: white !important; color: black !important; }
       #passwordScreen, .controls, footer, .top-actions, textarea, .header { display: none !important; }
       .container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
-      #output { border: none !important; padding: 0 !important; margin: 0 !important; font-size: 12pt !important; color: black !important; }
-      strong.green-highlight, strong.red-highlight, strong.yellow-highlight {
+      
+      /* Only show output if not hidden by script */
+      #output:empty, #meetingCheckOutput[style*="display: none"] { display: none !important; }
+
+      #output, #meetingCheckOutput { 
+        border: none !important; 
+        padding: 0 !important; 
+        margin: 20px 0 !important; 
+        font-size: 12pt !important; 
+        color: black !important; 
+        display: block !important; 
+        background: transparent !important;
+      }
+      
+      /* BLACK AND WHITE BOX OUTLINE FOR PRINT */
+      strong.green-highlight, 
+      strong.red-highlight, 
+      strong.yellow-highlight, 
+      strong.match-highlight {
         background: none !important;
         color: black !important;
-        border: 1px solid black !important;
-        padding: 1px 3px !important;
+        border: 2px solid black !important; 
+        padding: 1px 4px !important;
         font-weight: bold !important;
+        text-decoration: none !important;
       }
+
+      /* SHOW THE MANUAL CHECKBOXES ON PAPER */
+      .print-only-checkbox { display: inline-block !important; }
+      
+      .close-output { display: none !important; }
+      hr { border-top: 1px solid black !important; }
     }
   </style>
 </head>
@@ -342,10 +388,13 @@
       <div class="header">
         <h2><span>London</span> <span>Tipping Copy Editor</span></h2>
       </div>
+      <textarea id="inputTitle" placeholder="Paste TITLE here..."></textarea>
       <textarea id="inputText" placeholder="Paste the full Article including SELECTIONS..."></textarea>
+      
       <div class="controls">
         <div class="btn-group">
             <button onclick="processText()">🛠 <b>Process</b> </button>
+            <button class="btn-special" onclick="checkMeetingHorses()">🏇 <b>Meeting & Horse Check</b> </button>
             <button class="btn-print" onclick="window.print()">🖨 <b>Print</b> </button>
             <button onclick="clearText()" style="background-color: #555;">🗑 <b>Clear</b> </button>
         </div>
@@ -354,6 +403,8 @@
           <label for="highlightAll">Highlight all matches</label>
         </div>
       </div>
+      
+      <div id="meetingCheckOutput"></div>
       <div id="output"></div>
     </div>
     <footer>
@@ -378,22 +429,19 @@
 
 <script>
 /**
- * STEP 2: PROTECTION SCRIPTS
+ * PROTECTION SCRIPTS
  */
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.onkeydown = function(e) {
-  if (e.keyCode == 123) return false; // F12
-  if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Inspect
-  if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // View Source
+  if (e.keyCode == 123) return false;
+  if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+  if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
 };
 
 document.getElementById("passwordInput").addEventListener("keydown", function (e) {
   if (e.key === "Enter") { e.preventDefault(); checkPassword(); }
 });
 
-/**
- * STEP 1: OBFUSCATION
- */
 function checkPassword() {
   const _0x1a = "1234"; 
   const _0x1b = document.getElementById("passwordInput").value.trim();
@@ -411,7 +459,63 @@ function logout() {
   document.getElementById("passwordScreen").style.display = "flex";
 }
 
+function checkMeetingHorses() {
+  const fullText = document.getElementById('inputText').value;
+  const meetingDiv = document.getElementById('meetingCheckOutput');
+  
+  if (!fullText.toUpperCase().includes("SELECTIONS")) {
+    alert("Please ensure 'SELECTIONS:' part is included in your text.");
+    return;
+  }
+
+  const parts = fullText.split(/SELECTIONS/i);
+  const articlePart = parts[0];
+  const selectionsPart = parts[1];
+
+  let resultHtml = `<span class="close-output" onclick="this.parentElement.style.display='none'">Close ✖</span>
+    <div style="background: white; color: black; padding: 10px;">
+    <h3 style="margin-top:0; border-bottom: 2px solid black; padding-bottom:5px;">📋 MEETING CHECKLIST</h3>`;
+  
+  const meetingSections = selectionsPart.split(/(?=[A-Z]{3,}\s*:)/);
+
+  meetingSections.forEach(section => {
+    const meetMatch = section.match(/([A-Z]{3,})\s*:/);
+    if (meetMatch) {
+      const meetingName = meetMatch[1].trim();
+      resultHtml += `<div style="margin-bottom:20px;">
+        <strong style="font-size:18px; display: block; margin-bottom: 5px; color: black;">${meetingName}</strong>`;
+      
+      const horseRegex = /\d{1,2}\.\d{2}\s+([^(,\n\r]+)/g;
+      let hMatch;
+      let count = 1;
+      
+      while ((hMatch = horseRegex.exec(section)) !== null) {
+        const horseName = hMatch[1].trim();
+        const nameRegex = new RegExp(`\\b${horseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, "i");
+        const isMatched = nameRegex.test(articlePart);
+        
+        // Manual Selection Boxes (Circle and Square) added here
+        const checkBoxes = `<span class="print-only-checkbox print-circle"></span><span class="print-only-checkbox"></span>`;
+        
+        const displayName = isMatched ? `<strong class="match-highlight">${horseName}</strong>` : horseName;
+        resultHtml += `<span style="margin-left:5px; display: block; color: black; margin-bottom: 3px;">
+          ${checkBoxes}${count}. ${displayName}
+        </span>`;
+        count++;
+      }
+      resultHtml += `</div>`;
+    }
+  });
+
+  resultHtml += `</div>`;
+  
+  meetingDiv.innerHTML = resultHtml;
+  meetingDiv.style.display = "block";
+  meetingDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
 function processText() {
+  const _titleVal = document.getElementById('inputTitle').value;
   const _0xf1 = document.getElementById('inputText').value;
   const _0xf2 = document.getElementById('output');
   const _0xf3 = document.getElementById('highlightAll').checked;
@@ -444,7 +548,11 @@ function processText() {
     _0xf9 = _0xf9.replace(r, m => `<strong class="yellow-highlight">${m}</strong>`);
   });
 
-  _0xf2.innerHTML = _0xf9;
+  let combinedOutput = "";
+  if(_titleVal.trim() !== "") {
+    combinedOutput = `<h2 style="color:black; margin-top:0; border-bottom: 2px solid #ddd; padding-bottom:10px;">${_titleVal}</h2>`;
+  }
+  _0xf2.innerHTML = combinedOutput + _0xf9;
 }
 
 function openModal(t) {
@@ -458,7 +566,13 @@ function openModal(t) {
 }
 
 function closeModal() { document.getElementById("infoModal").style.display = "none"; }
-function clearText() { document.getElementById('inputText').value=''; document.getElementById('output').innerHTML=''; }
+function clearText() { 
+    document.getElementById('inputTitle').value=''; 
+    document.getElementById('inputText').value=''; 
+    document.getElementById('output').innerHTML=''; 
+    document.getElementById('meetingCheckOutput').innerHTML=''; 
+    document.getElementById('meetingCheckOutput').style.display='none'; 
+}
 </script>
 
 </body>
