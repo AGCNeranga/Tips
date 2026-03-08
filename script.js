@@ -79,6 +79,24 @@ function clearText() {
   document.getElementById('highlightAll').checked = false;
 }
 
+// Add the security code here:
+document.onkeydown = (e) => {
+    // Prevent F12
+    if (e.keyCode == 123) return false;
+
+    // Prevent Ctrl + Shift + I/J/C (Windows/Linux)
+    if (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) return false;
+
+    // Prevent Ctrl + U (View Source)
+    if (e.ctrlKey && e.keyCode == 85) return false;
+
+    // Prevent Cmd + Option + I/J/U/C (Mac)
+    if (e.metaKey && e.altKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 85 || e.keyCode == 67)) return false;
+    
+    // Prevent Cmd + U (Mac View Source)
+    if (e.metaKey && e.keyCode == 85) return false;
+};
+
 
 
 
